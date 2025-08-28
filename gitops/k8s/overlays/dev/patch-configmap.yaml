@@ -9,7 +9,7 @@ spec:
         - name: health-check-service
           volumeMounts:
             - name: servers-config
-              mountPath: /config/servers.json
+              mountPath: /config/
               readOnly: true
       volumes:
         - name: servers-config
