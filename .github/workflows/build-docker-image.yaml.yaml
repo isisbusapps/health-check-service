@@ -5,6 +5,10 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - gitops/**
+      - README.md
+      - servers.json
 jobs:
   build-and-push-image:
     runs-on: ubuntu-latest
