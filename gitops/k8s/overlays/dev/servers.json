@@ -1,0 +1,11 @@
+[
+  {
+    "name": "UOWS",
+    "url": "https://devapi.facilities.rl.ac.uk/users-service/v1/quarkus/health",
+    "localUrl": "http://user-office-web-service-rest-v1.apps.svc.cluster.local:8080/v1/quarkus/health"
+  },
+  {
+    "name": "Visits",
+    "url": "https://devapi.facilities.rl.ac.uk/visits-service/quarkus/health"
+  }
+]

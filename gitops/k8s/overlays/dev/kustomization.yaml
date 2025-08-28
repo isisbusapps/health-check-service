@@ -3,5 +3,10 @@ kind: Kustomization
 namespace: apps
 resources:
   - ../../base
+configMapGenerator:
+  - name: health-check-service-servers
+    files:
+      - servers.json
 patches:
   - path: path-image.yaml
+  - path: patch-configmap.yaml
