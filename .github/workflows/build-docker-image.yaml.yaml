@@ -1,0 +1,33 @@
+name: Build and push docker image
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    outputs:
+      image-digest: ${{steps.build.outputs.digest}}
+    steps:
+      -
+        name: Login to Harbor
+        uses: docker/login-action@v3
+        with:
+          registry: https://harbor.stfc.ac.uk/harbor/projects
+          username: ${{vars.HARBOR_ROBOT_USERNAME}}
+          password: ${{secrets.HARBOR_ROBOT_PASSWORD}}
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          token: ${{secrets.ACTIONS_DEPLOY_KEY}}
+
+      - id: build
+        name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: harbor.stfc.ac.uk/isisbusapps/health-check-service:dev
