@@ -1,0 +1,10 @@
+[
+  {
+  "name": "UOWS",
+  "url" : "https://devapi.facilities.rl.ac.uk/users-service/v1/quarkus/health"
+  },
+  {
+    "name": "Visits",
+    "url" : "https://devapi.facilities.rl.ac.uk/visits-service/quarkus/health"
+  }
+]
