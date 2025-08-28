@@ -2,11 +2,18 @@ package com.stfc.UserOffice.service;
 
 import com.stfc.UserOffice.clients.UOWS;
 import com.stfc.UserOffice.dto.Status;
+import io.micrometer.core.instrument.MeterRegistry;
 import io.quarkus.scheduler.Scheduled;
+import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.jboss.resteasy.reactive.RestResponse;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 @ApplicationScoped
@@ -17,16 +24,29 @@ public class HealthChecker {
     @RestClient
     UOWS uows;
 
-    private Boolean up;
+    @Inject
+    MeterRegistry registry;
 
-    public Boolean isUp() {
-        return up;
+    private final AtomicInteger upGauge = new AtomicInteger(0);
+
+    @PostConstruct
+    void init() {
+        registry.gauge("status.uo", Collections.emptyList(), upGauge, AtomicInteger::get);
     }
 
     @Scheduled(every = "10s")
     public void check() {
-        Status status = uows.checkUOWS();
-        up = Objects.equals(status.status(), "UP");
-        LOGGER.info("UOWS status: " + status.status());
+        try (RestResponse<Status> restResponse = uows.checkUOWS()) {
+            if (restResponse.getStatus() != 200) {
+                upGauge.set(0);
+                LOGGER.info("UOWS is DOWN");
+                return;
+            }
+            upGauge.set(1);
+            LOGGER.info("UOWS is UP");
+        } catch (Exception e) {
+            upGauge.set(0);
+            LOGGER.info("UOWS is DOWN");
+        }
     }
 }
