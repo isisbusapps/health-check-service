@@ -1,8 +1,10 @@
 package com.stfc.UserOffice.service;
 
 import com.stfc.UserOffice.clients.UOWS;
+import com.stfc.UserOffice.clients.Visits;
 import com.stfc.UserOffice.dto.Status;
 import io.micrometer.core.instrument.MeterRegistry;
+import io.micrometer.core.instrument.Tags;
 import io.quarkus.scheduler.Scheduled;
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -10,9 +12,6 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.RestResponse;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -24,29 +23,47 @@ public class HealthChecker {
     @RestClient
     UOWS uows;
 
+    @RestClient
+    Visits visits;
+
     @Inject
     MeterRegistry registry;
 
-    private final AtomicInteger upGauge = new AtomicInteger(0);
+    private final AtomicInteger uowsGauge = new AtomicInteger(0);
+    private final AtomicInteger visitsGauge = new AtomicInteger(0);
 
     @PostConstruct
     void init() {
-        registry.gauge("status.uo", Collections.emptyList(), upGauge, AtomicInteger::get);
+        registry.gauge("service.status", Tags.of("service", "uows"), uowsGauge, AtomicInteger::get);
+        registry.gauge("service.status", Tags.of("service", "visits"), visitsGauge, AtomicInteger::get);
     }
 
     @Scheduled(every = "10s")
     public void check() {
         try (RestResponse<Status> restResponse = uows.checkUOWS()) {
             if (restResponse.getStatus() != 200) {
-                upGauge.set(0);
+                uowsGauge.set(0);
                 LOGGER.info("UOWS is DOWN");
                 return;
             }
-            upGauge.set(1);
+            uowsGauge.set(1);
             LOGGER.info("UOWS is UP");
         } catch (Exception e) {
-            upGauge.set(0);
+            uowsGauge.set(0);
             LOGGER.info("UOWS is DOWN");
+        }
+
+        try (RestResponse<Status> restResponse = visits.checkVisits()) {
+            if (restResponse.getStatus() != 200) {
+                visitsGauge.set(0);
+                LOGGER.info("Visits is DOWN");
+                return;
+            }
+            visitsGauge.set(1);
+            LOGGER.info("visits is UP");
+        } catch (Exception e) {
+            visitsGauge.set(0);
+            LOGGER.info("visits is DOWN");
         }
     }
 }
