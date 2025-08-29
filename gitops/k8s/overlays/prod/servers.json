@@ -36,12 +36,10 @@
   },
   {
     "name": "ua-dev-tools",
-    "url": "https://office.facilities.rl.ac.uk/ua-dev-tools",
-    "localUrl": "http://ua-dev-tools.apps.svc.cluster.local:8100/ua-dev-tools"
+    "url": "https://office.facilities.rl.ac.uk/ua-dev-tools"
   },
   {
     "name": "user-establishment-details",
-    "url": "https://office.facilities.rl.ac.uk/UserEstablishmentDetails",
-    "localUrl": "http://user-establishment-details.apps.svc.cluster.local:8080/UserEstablishmentDetails"
+    "url": "https://office.facilities.rl.ac.uk/UserEstablishmentDetails"
   }
 ]
