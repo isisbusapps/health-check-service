@@ -1,8 +1,53 @@
 [
   {
-    "name": "UOWS",
+    "name": "UOWS-v1",
     "url": "https://devapi.facilities.rl.ac.uk/users-service/v1/quarkus/health",
-     "localUrl": "http://user-office-web-service-rest-v1.apps.svc.cluster.local:8080/users-service/v1/quarkus/health"
+    "localUrl": "http://user-office-web-service-rest-v1.apps.svc.cluster.local:8080/users-service/v1/quarkus/health"
+  },
+  {
+    "name": "UOWS-v2",
+    "url": "https://devapi.facilities.rl.ac.uk/users-service/v2/quarkus/health",
+    "localUrl": "http://user-office-web-service-rest-v2.apps.svc.cluster.local:8080/users-service/v2/quarkus/health"
+  },
+  {
+    "name": "auth-service",
+    "url": "https://devapi.facilities.rl.ac.uk/auth-service/v0/q/health",
+    "localUrl": "http://auth-service.apps.svc.cluster.local:8080/q/health"
+  },
+  {
+    "name": "merge-user-tool",
+    "url": "https://devapi.facilities.rl.ac.uk/users/merges/uptime",
+    "localUrl": "http://merge-user-tool.apps.svc.cluster.local:8080/users/merges/uptime"
+  },
+  {
+    "name": "message",
+    "url": "https://devexternal-api.facilities.rl.ac.uk/messages",
+    "localUrl": "http://messages-service.apps.svc.cluster.local:30000/q/health"
+  },
+  {
+    "name": "mailchimp-webhooks",
+    "url": "https://devexternal-api.facilities.rl.ac.uk/mailchimp/status",
+    "localUrl": "http://mailchimp-webhooks.apps.svc.cluster.local:3000/status"
+  },
+  {
+    "name": "merge-user-tool",
+    "url": "https://devapi.facilities.rl.ac.uk/users/merges/uptime",
+    "localUrl": "http://merge-user-tool.apps.svc.cluster.local:8080/users/merges/uptime"
+  },
+  {
+    "name": "ua-dev-tools",
+    "url": "https://devoffice.facilities.rl.ac.uk/ua-dev-tools",
+    "localUrl": "http://ua-dev-tools.apps.svc.cluster.local:8100/ua-dev-tools"
+  },
+  {
+    "name": "user-establishment-details",
+    "url": "https://devoffice.facilities.rl.ac.uk/UserEstablishmentDetails",
+    "localUrl": "http://user-establishment-details.apps.svc.cluster.local:8080/UserEstablishmentDetails"
+  },
+  {
+    "name": "authenticate-frontend",
+    "url": "https://devusers.facilities.rl.ac.uk/authenticate-frontend",
+    "localUrl": "http://authenticate-frontend.apps.svc.cluster.local:3000/authenticate-frontend"
   },
   {
     "name": "Visits",

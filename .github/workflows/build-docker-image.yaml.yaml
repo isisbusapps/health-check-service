@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - main
+      - develop
     paths-ignore:
       - gitops/**
       - README.md
@@ -15,13 +16,15 @@ jobs:
     outputs:
       image-digest: ${{steps.build.outputs.digest}}
     steps:
-      -
-        name: Login to Harbor
+      - name: Login to Harbor
         uses: docker/login-action@v3
         with:
           registry: https://harbor.stfc.ac.uk/harbor/projects
           username: ${{vars.HARBOR_ROBOT_USERNAME}}
           password: ${{secrets.HARBOR_ROBOT_PASSWORD}}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -33,3 +36,47 @@ jobs:
           context: .
           push: true
           tags: harbor.stfc.ac.uk/isisbusapps/health-check-service:dev
+  update-image-version-dev:
+    if: ${{github.ref == 'develop'}}
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{secrets.ACTIONS_DEPLOY_KEY}}
+
+      - name: Update container verison
+        uses: mikefarah/yq@v4.45.1
+        with:
+          cmd: yq -i '.spec.template.spec.containers[0].image = "harbor.stfc.ac.uk/isisbusapps/health-check-service@${{needs.build-and-push-image.outputs.image-digest}}"' ./gitops/k8s/overlays/dev/patch-image.yaml
+
+      - name: Commit and push image update changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub actions"
+          git commit -am "[CD] Update the dev image to the latest built image"
+          git push
+
+  update-image-version-prod:
+    if: ${{github.ref == 'main'}}
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+    steps:
+
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ssh-key: ${{secrets.ACTIONS_DEPLOY_KEY}}
+
+      - name: Update container verison
+        uses: mikefarah/yq@v4.45.1
+        with:
+          cmd: yq -i '.spec.template.spec.containers[0].image = "harbor.stfc.ac.uk/isisbusapps/health-check-service@${{needs.build-and-push-image.outputs.image-digest}}"' ./gitops/k8s/overlays/prod/patch-image.yaml
+      - name: Commit and push image update changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub actions"
+          git commit -am "[CD] Update the dev image to the latest built image"
+          git push
