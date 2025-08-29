@@ -30,11 +30,6 @@
     "localUrl": "http://mailchimp-webhooks.apps.svc.cluster.local:3000/status"
   },
   {
-    "name": "merge-user-tool",
-    "url": "https://api.facilities.rl.ac.uk/users/merges/uptime",
-    "localUrl": "http://merge-user-tool.apps.svc.cluster.local:8080/users/merges/uptime"
-  },
-  {
     "name": "ua-dev-tools",
     "url": "https://office.facilities.rl.ac.uk/ua-dev-tools"
   },
