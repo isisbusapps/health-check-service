@@ -37,7 +37,6 @@ jobs:
           tags: harbor.stfc.ac.uk/isisbusapps/health-check-service:prod
 
   update-image-version-prod:
-    if: github.ref == 'main'
     runs-on: ubuntu-latest
     needs: build-and-push-image
     steps:
