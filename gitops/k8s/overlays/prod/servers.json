@@ -30,18 +30,11 @@
     "localUrl": "http://mailchimp-webhooks.apps.svc.cluster.local:3000/status"
   },
   {
-    "name": "merge-user-tool",
-    "url": "https://api.facilities.rl.ac.uk/users/merges/uptime",
-    "localUrl": "http://merge-user-tool.apps.svc.cluster.local:8080/users/merges/uptime"
-  },
-  {
     "name": "ua-dev-tools",
-    "url": "https://office.facilities.rl.ac.uk/ua-dev-tools",
-    "localUrl": "http://ua-dev-tools.apps.svc.cluster.local:8100/ua-dev-tools"
+    "url": "https://office.facilities.rl.ac.uk/ua-dev-tools"
   },
   {
     "name": "user-establishment-details",
-    "url": "https://office.facilities.rl.ac.uk/UserEstablishmentDetails",
-    "localUrl": "http://user-establishment-details.apps.svc.cluster.local:8080/UserEstablishmentDetails"
+    "url": "https://office.facilities.rl.ac.uk/UserEstablishmentDetails"
   }
 ]
