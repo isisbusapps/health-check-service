@@ -1,81 +1,149 @@
-# health-service
+# Health Check Service
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+A lightweight **open source** Quarkus-based service that periodically checks the availability of dependent services and exposes simple status metrics for observability platforms (e.g., Prometheus/Grafana).
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+The service reads a list of target endpoints from a JSON file, performs HTTP GET checks every 10 seconds, and updates Micrometer gauges to indicate UP (1) or DOWN (0) for each target. It’s designed to run locally, in Docker, or on Kubernetes with Kustomize overlays.
 
-## Running the application in dev mode
+## Features
+- Periodic health checks (every 10s) of configured services (external and optional in-cluster/local URLs).
+- Exposes Micrometer metrics with Prometheus registry.
+- Quarkus native health endpoint for liveness/readiness.
+- Simple configuration via JSON file (ConfigMap in K8s).
+- Container-first build with multi-stage Dockerfile.
 
-You can run your application in dev mode that enables live coding using:
+## How it works
+- On startup, the service loads servers.json (path configurable via `servers.file`).
+- For each server item, it optionally tracks:
+  - default URL ("url"): checked and exported as `service.status.default{service="<name>"}`.
+  - local/in-cluster URL ("localUrl"): checked and exported as `service.status.local{service="<name>"}`.
+  - combined metric `service.status.combined{service="<name>"}` = 1 only if both default and local are UP.
+- Every 10 seconds the service performs HTTP GET checks (5s timeout; 3s connect timeout) and logs per-target status.
 
-```shell script
-./mvnw quarkus:dev
+## Endpoints
+- Health: `GET /q/health` (provided by Quarkus SmallRye Health)
+- Prometheus metrics: `GET /q/metrics`
+
+## Configuration
+Configuration is primarily via `application.properties` and a JSON file with the target servers list.
+
+`src/main/resources/application.properties` (relevant entries):
+- `servers.file=/config/servers.json` (production default)
+- `%dev.servers.file=${PWD}/servers.json` (when running with `mvn quarkus:dev`)
+- Micrometer binder defaults are tuned to only what’s needed.
+
+### servers.json format
+An array of objects; each object supports:
+- `name` (string): Logical name of the service (used as the `service` tag in metrics; lowercased in metrics).
+- `url` (string): Public/default URL to check (optional but recommended).
+- `localUrl` (string): In-cluster/internal URL to check (optional). When present, combined metric is also emitted.
+
+Example:
+```json
+[
+  {
+    "name": "users-service-v1",
+    "url": "https://example.org/users-service/v1/quarkus/health",
+    "localUrl": "http://users-service-v1.apps.svc.cluster.local:8080/users-service/v1/quarkus/health"
+  },
+  {
+    "name": "visits",
+    "url": "https://example.org/visits-service/quarkus/health"
+  }
+]
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+## Build and Run
 
-## Packaging and running the application
+### Prerequisites
+- Java 21 (JDK)
+- Maven 3.x
 
-The application can be packaged using:
+### Run in dev mode
+Dev mode auto-reloads on code changes and uses `servers.json` from the project root (thanks to `%dev` config):
 
-```shell script
-./mvnw package
+```bash
+mvn quarkus:dev
 ```
 
-It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
-Be aware that it’s not an _über-jar_ as the dependencies are copied into the `target/quarkus-app/lib/` directory.
+Then access:
+- http://localhost:8080/q/health
+- http://localhost:8080/q/metrics
 
-The application is now runnable using `java -jar target/quarkus-app/quarkus-run.jar`.
+Ensure there is a `servers.json` file at the project root (you can copy or adapt from `gitops/k8s/overlays/dev/servers.json`).
 
-If you want to build an _über-jar_, execute the following command:
+### Build a production jar
+```bash
+mvn clean package -DskipTests
+```
+Artifacts will be in `target/quarkus-app/`. You can run the app with:
 
-```shell script
-./mvnw package -Dquarkus.package.jar.type=uber-jar
+```bash
+java -jar target/quarkus-app/quarkus-run.jar
 ```
 
-The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
-
-## Creating a native executable
-
-You can create a native executable using:
-
-```shell script
-./mvnw package -Dnative
+Optionally point to a specific servers file:
+```bash
+java -Dservers.file=/path/to/servers.json -jar target/quarkus-app/quarkus-run.jar
 ```
 
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./mvnw package -Dnative -Dquarkus.native.container-build=true
+### Native build (optional)
+See Quarkus native profile in `pom.xml`:
+```bash
+mvn clean package -DskipTests -Dnative
 ```
 
-You can then execute your native executable with: `./target/health-service-1.0-SNAPSHOT-runner`
+## Docker
+Multi-stage Dockerfile builds and runs the app as a non-root user.
 
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/maven-tooling>.
+Build image (tests ON by default; set `--build-arg SKIP_TESTS=true` to skip):
+```bash
+docker build -t health-check-service .
+# or skipping tests
+docker build --build-arg SKIP_TESTS=true -t health-check-service .
+```
 
-## Related Guides
+Run with a local servers.json mounted at `/config/servers.json` (matches default `servers.file`):
+```bash
+docker run --rm -p 8080:8080 \
+  -v $(pwd)/servers.json:/config/servers.json:ro \
+  health-check-service
+```
 
-- REST Client ([guide](https://quarkus.io/guides/rest-client)): Call REST services
-- SmallRye Health ([guide](https://quarkus.io/guides/smallrye-health)): Monitor service health
-- Micrometer metrics ([guide](https://quarkus.io/guides/micrometer)): Instrument the runtime and your application with
-  dimensional metrics using Micrometer.
+Then visit:
+- http://localhost:8080/q/health
+- http://localhost:8080/q/metrics
 
-## Provided Code
+## Kubernetes (Kustomize)
+Kustomize overlays are provided under `gitops/k8s/overlays/dev` and `gitops/k8s/overlays/prod`.
 
-### REST Client
+- Base Deployment: `gitops/k8s/base/deployment.yaml` (exposes port 8080)
+- Overlays:
+  - Mount a ConfigMap named `health-check-service-servers` at `/config/servers.json`.
+  - Patch the container image per environment.
 
-Invoke different services through REST with JSON
+To apply an overlay (example for dev):
+```bash
+kubectl apply -k gitops/k8s/overlays/dev
+```
+Make sure to set the image in the patch `patch-image.yaml` (place-holder in dev overlay). The ConfigMap is generated from `servers.json` within the overlay directory.
 
-[Related guide section...](https://quarkus.io/guides/rest-client)
+## Metrics reference
+The service exposes the following custom gauges (value: 1 for UP, 0 for DOWN):
+- `service.status.default{service="<name>"}`
+- `service.status.local{service="<name>"}` (only if localUrl provided)
+- `service.status.combined{service="<name>"}` (1 only when both default and local are UP)
 
-### REST
+Examples Prometheus queries:
+- `service_status_default{service="users-service-v1"}`
+- `sum by (service) (service_status_combined)`
 
-Easily start your REST Web Services
+Note: In Prometheus, metric names will use underscores; Quarkus/Micrometer converts dots to underscores (e.g., `service.status.default` -> `service_status_default`).
 
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+## Logging
+During checks, informational logs indicate whether each target is UP or DOWN with HTTP status or error message.
 
-### SmallRye Health
-
-Monitor your application's health using SmallRye Health
-
-[Related guide section...](https://quarkus.io/guides/smallrye-health)
+## Project details
+- Java: 21
+- Build: Maven
+- Framework: Quarkus 3.25.4
+- Key extensions: SmallRye Health, Micrometer (Prometheus), Scheduler, REST
