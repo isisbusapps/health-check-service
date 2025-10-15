@@ -7,7 +7,7 @@
   {
     "name": "UOWS-v2",
     "url": "https://devapi.facilities.rl.ac.uk/users-service/v2/quarkus/health",
-    "localUrl": "http://user-office-web-service-rest-v2.apps.svc.cluster.local:8080/users-service/v2/quarkus/health"
+    "localUrl": "http://user-office-web-service-rest-v2.apps.svc.cluster.local:8080/quarkus/health"
   },
   {
     "name": "auth-service",
