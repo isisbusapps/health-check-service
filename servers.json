@@ -52,5 +52,9 @@
   {
     "name": "Visits",
     "url": "https://devapi.facilities.rl.ac.uk/visits-service/quarkus/health"
+  },
+  {
+    "name": "schedule-service",
+    "url": "https://devapis.facilities.rl.ac.uk/ws/ScheduleWebService/health"
   }
 ]
