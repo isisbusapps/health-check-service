@@ -56,5 +56,9 @@
   {
     "name": "schedule-service",
     "url": "https://devapis.facilities.rl.ac.uk/ws/ScheduleWebService/health"
+  },
+  {
+    "name": "schedule-web-app",
+    "url": "https://devoffice.facilities.rl.ac.uk/schedule/HealthCheck.ashx"
   }
 ]
