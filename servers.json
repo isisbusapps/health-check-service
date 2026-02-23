@@ -72,5 +72,13 @@
   {
     "name": "era-reports-service",
     "url": "https://devapis.facilities.rl.ac.uk/erareportservice/HealthCheck.ashx"
+  },
+  {
+    "name": "manage-consumables-backend",
+    "url": "https://devapis.facilities.rl.ac.uk/manage-consumables-service/api/health"
+  },
+  {
+    "name": "manage-consumables-frontend",
+    "url": "https://devoffice.facilities.rl.ac.uk/manage-consumables"
   }
 ]
