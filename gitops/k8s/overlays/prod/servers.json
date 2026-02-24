@@ -38,6 +38,26 @@
     "url": "https://office.facilities.rl.ac.uk/UserEstablishmentDetails"
   },
   {
+    "name": "schedule-service",
+    "url": "https://api.facilities.rl.ac.uk/ws/ScheduleWebService/health"
+  },
+  {
+    "name": "schedule-web-app",
+    "url": "https://office.facilities.rl.ac.uk/schedule/HealthCheck.ashx"
+  },
+  {
+    "name": "era-web-app",
+    "url": "https://users.facilities.rl.ac.uk/eras/HealthCheck.ashx"
+  },
+  {
+    "name": "era-web-service",
+    "url": "https://api.facilities.rl.ac.uk/eraservice/HealthCheck.ashx"
+  },
+  {
+    "name": "era-reports-service",
+    "url": "https://api.facilities.rl.ac.uk/erareportservice/HealthCheck.ashx"
+  },
+  {
     "name": "manage-consumables-backend",
     "url": "https://api.facilities.rl.ac.uk/manage-consumables-service/api/health"
   },
