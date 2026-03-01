@@ -5,7 +5,7 @@
 version: 2
 updates:
   # Enable version updates for npm
-  - package-ecosystem: "npm"
+  - package-ecosystem: "maven"
     directory: "/health-check-service/"
     schedule:
       interval: "daily"
