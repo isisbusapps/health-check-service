@@ -1,0 +1,22 @@
+name: DEV Build and deploy
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - gitops/**
+      - README.md
+      - servers.json
+concurrency:
+  group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'dev-deploy' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+jobs:
+  dev-build:
+    uses: isisbusapps/ci-cd/.github/workflows/dev-build-reusable-workflow.yaml@main
+    with:
+      image-name: health-check-service
+      app-name: Health Check Service
+      gitops-patch-path: components/infra/health-check-service/overlays/dev/patch-image.yaml
+    secrets:
+      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}
