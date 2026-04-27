@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - develop
+      - main
     paths-ignore:
       - gitops/**
       - README.md
@@ -44,7 +44,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: 'develop'
+          ref: 'main'
 
       - name: Update container verison
         uses: mikefarah/yq@v4.45.1
