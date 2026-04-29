@@ -12,6 +12,35 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'dev-deploy' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  dev-move-servers-json:
+    runs-on: ubuntu-latest
+    env:
+     GITOPS_REPO: isisbusapps/gitops
+    steps:
+      - name: Checkout Health Check
+        uses: actions/checkout@v6
+        with:
+          path: health-check-service/
+
+      - name: Checkout gitops
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          path: gitops/
+
+      - name: Copy servers.json to gitops
+        run: |
+          cp health-check-service/dev/servers.json gitops/components/infra/health-check-service/overlays/dev/servers.json
+
+      - name: Commit and push changes, create PR
+        working-directory: gitops/
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "[CD] Update Health Check Service Dev servers.json"
+          git push
+
   dev-build:
     uses: isisbusapps/ci-cd/.github/workflows/dev-build-reusable-workflow.yaml@main
     with:
