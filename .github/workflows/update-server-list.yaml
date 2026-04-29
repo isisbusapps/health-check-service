@@ -49,5 +49,7 @@ jobs:
           gh workflow run create-release-pr.yaml \
             --repo "${{ env.GITOPS_REPO }}" \
             --field branchName="${{ env.BRANCH }}" \
+            --field releaseVersion="" \
+            --field imageName="" \
             --field sourceRepo="${{ github.repository }}" \
             --field actor="${{ github.actor }}"
