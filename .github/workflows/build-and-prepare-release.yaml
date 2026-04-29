@@ -1,0 +1,26 @@
+name: Build and Prepare Release
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: 'Release version (e.g., 1.2.3) — no v prefix'
+        required: true
+        type: string
+      isHotfix:
+        description: 'Hotfix release (select the hotfix branch before running)'
+        required: true
+        type: boolean
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+jobs:
+  release:
+    uses: isisbusapps/ci-cd/.github/workflows/build-and-prepare-release-reusable-workflow.yaml@main
+    with:
+      image-name: health-check-service
+      app-name: Health Check Service
+      gitops-patch-path: components/infra/health-check-service/overlays/dev/patch-image.yaml
+      release-version: ${{ inputs.releaseVersion }}
+      is-hotfix: ${{ inputs.isHotfix }}
+    secrets:
+      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}
