@@ -39,6 +39,8 @@ jobs:
 
       - name: Commit and push changes, create PR
         working-directory: gitops/
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
