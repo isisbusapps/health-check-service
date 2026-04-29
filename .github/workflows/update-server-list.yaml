@@ -11,7 +11,6 @@ jobs:
   dev-move-servers-json:
     runs-on: ubuntu-latest
     env:
-     BRANCH: DEV_UpdateHealthCheckServers
      GITOPS_REPO: isisbusapps/gitops
     steps:
       - name: Checkout Health Check
@@ -26,13 +25,6 @@ jobs:
           token: ${{ secrets.WORKFLOW_TOKEN }}
           path: gitops/
 
-      - name: Create branch
-        working-directory: gitops/
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git checkout -b "${{ env.BRANCH }}"  
-
       - name: Copy servers.json to gitops
         run: |
           cp health-check-service/dev/servers.json gitops/components/infra/health-check-service/overlays/dev/servers.json
@@ -45,11 +37,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "[CD] Update Health Check Service Dev servers.json"
-          git push --set-upstream origin "DEV_UpdateHealthCheckServers"
-          gh workflow run create-release-pr.yaml \
-            --repo "${{ env.GITOPS_REPO }}" \
-            --field branchName="${{ env.BRANCH }}" \
-            --field releaseVersion="" \
-            --field imageName="" \
-            --field sourceRepo="${{ github.repository }}" \
-            --field actor="${{ github.actor }}"
+          git push
