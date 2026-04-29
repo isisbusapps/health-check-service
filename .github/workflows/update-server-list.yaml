@@ -14,11 +14,22 @@ jobs:
       - name: Checkout Health Check
         uses: actions/checkout@v6
 
+      - name: LS
+        run: ls -la
+
       - name: Checkout gitops
         uses: actions/checkout@v6
         with:
           repository: isisbusapps/gitops
           token: ${{ secrets.WORKFLOW_TOKEN }}
+      
+      - name: LS
+        run: ls -la
+
+      - name: LS
+        run: |
+          cd ../
+          ls -la
 
       - name: Copy servers.json to gitops
         run: |
