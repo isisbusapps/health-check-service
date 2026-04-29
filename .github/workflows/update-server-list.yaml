@@ -45,10 +45,8 @@ jobs:
   trigger_pr:
     runs-on: ubuntu-latest
     needs: dev-move-servers-json
-    steps:
-      - name: Trigger PR Creation
-        uses: isisbusapps/gitops/.github/workflows/create-release-pr.yaml@main
-        with:
-          branchName: DEV_UpdateHealthCheckServers
-          sourceRepo: ${{ github.repository }}
-          actor: ${{ github.actor }}
+    uses: isisbusapps/gitops/.github/workflows/create-release-pr.yaml@main
+    with:
+      branchName: DEV_UpdateHealthCheckServers
+      sourceRepo: ${{ github.repository }}
+      actor: ${{ github.actor }}
