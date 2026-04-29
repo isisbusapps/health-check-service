@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Checkout gitops
-        name: actions/checkout@v6
+        uses: actions/checkout@v6
         with:
           repository: isisbusapps/gitops
           token: ${{ secrets.WORKFLOW_TOKEN }}
