@@ -7,10 +7,10 @@ on:
     paths:
       - dev/servers.json
 jobs:
-    dev-move-servers-json:
+  dev-move-servers-json:
     runs-on: ubuntu-latest
     env:
-     GITOPS_REPO: isisbusapps/gitops
+      GITOPS_REPO: isisbusapps/gitops
     steps:
       - name: Checkout Health Check
         uses: actions/checkout@v6

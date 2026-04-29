@@ -38,27 +38,27 @@ jobs:
         echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
     
     - name: Checkout Health Check
-        uses: actions/checkout@v6
-        with:
-          path: health-check-service/
+      uses: actions/checkout@v6
+      with:
+        path: health-check-service/
 
-      - name: Checkout gitops
-        uses: actions/checkout@v6
-        with:
-          repository: ${{ env.GITOPS_REPO }}
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-          path: gitops/
+    - name: Checkout gitops
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ env.GITOPS_REPO }}
+        token: ${{ secrets.WORKFLOW_TOKEN }}
+        path: gitops/
 
-      - name: Copy servers.json to gitops
-        run: |
-          cp health-check-service/prod/servers.json gitops/components/infra/health-check-service/overlays/prod/servers.json
+    - name: Copy servers.json to gitops
+      run: |
+        cp health-check-service/prod/servers.json gitops/components/infra/health-check-service/overlays/prod/servers.json
 
-      - name: Commit and push changes, create PR
-        working-directory: gitops/
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git checkout ${{ needs.update_gitops.outputs.branch-name }}
-          git pull
-          git commit -am "[CD] Update Health Check Service Dev servers.json"
-          git push
+    - name: Commit and push changes, create PR
+      working-directory: gitops/
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git checkout ${{ needs.update_gitops.outputs.branch-name }}
+        git pull
+        git commit -am "[CD] Update Health Check Service Dev servers.json"
+        git push
