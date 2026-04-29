@@ -16,33 +16,29 @@ jobs:
         with:
           path: health-check-service/
 
-      - name: LS
-        run: ls -la
-
       - name: Checkout gitops
         uses: actions/checkout@v6
         with:
           repository: isisbusapps/gitops
           token: ${{ secrets.WORKFLOW_TOKEN }}
           path: gitops/
-      
-      - name: LS
-        run: ls -la
 
-      - name: LS
+      - name: Create branch
+        working-directory: gitops/
         run: |
-          cd ../
-          ls -la
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout -b "DEV_UpdateHealthCheckServers"      
 
       - name: Copy servers.json to gitops
         run: |
           cp health-check-service/dev/servers.json gitops/components/infra/health-check-service/overlays/dev/servers.json
 
       - name: Commit and push changes
+        working-directory: gitops/
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git checkout -b "DEV_UpdateHealthCheckServers"
           git commit -am "[CD] Update Health Check Service Dev servers.json"
           git push --set-upstream origin "DEV_UpdateHealthCheckServers"
 
