@@ -42,7 +42,11 @@ jobs:
           git commit -am "[CD] Update Health Check Service Dev servers.json"
           git push --set-upstream origin "DEV_UpdateHealthCheckServers"
 
-      - name: Trigger GitOps PR workflow
+  trigger_pr:
+    runs-on: ubuntu-latest
+    needs: dev-move-servers-json
+    steps:
+      - name: Trigger PR Creation
         uses: isisbusapps/gitops/.github/workflows/create-release-pr.yaml@main
         with:
           branchName: DEV_UpdateHealthCheckServers
