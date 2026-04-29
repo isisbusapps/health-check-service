@@ -19,7 +19,7 @@ jobs:
     with:
       image-name: health-check-service
       app-name: Health Check Service
-      gitops-patch-path: components/infra/health-check-service/overlays/dev/patch-image.yaml
+      gitops-patch-path: components/infra/health-check-service/overlays/prod/patch-image.yaml
       release-version: ${{ inputs.releaseVersion }}
       is-hotfix: ${{ inputs.isHotfix }}
     secrets:
