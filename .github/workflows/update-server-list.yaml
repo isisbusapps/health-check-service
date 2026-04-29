@@ -31,7 +31,8 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git checkout -b "${{ env.BRANCH }}"      
+          git checkout -b "${{ env.BRANCH }}"
+          git pull    
 
       - name: Copy servers.json to gitops
         run: |
@@ -47,7 +48,5 @@ jobs:
           gh workflow run create-release-pr.yaml \
             --repo "${{ env.GITOPS_REPO }}" \
             --field branchName="${{ env.BRANCH }}" \
-            --field releaseVersion="${{ inputs.release-version }}" \
-            --field imageName="${{ github.repository_owner }}/${{ inputs.image-name }}" \
             --field sourceRepo="${{ github.repository }}" \
             --field actor="${{ github.actor }}"
