@@ -10,6 +10,9 @@ on:
 jobs:
   dev-move-servers-json:
     runs-on: ubuntu-latest
+    env:
+     BRANCH: DEV_UpdateHealthCheckServers
+     GITOPS_REPO: isisbusapps/gitops
     steps:
       - name: Checkout Health Check
         uses: actions/checkout@v6
@@ -19,7 +22,7 @@ jobs:
       - name: Checkout gitops
         uses: actions/checkout@v6
         with:
-          repository: isisbusapps/gitops
+          repository: ${{ env.GITOPS_REPO }}
           token: ${{ secrets.WORKFLOW_TOKEN }}
           path: gitops/
 
@@ -28,25 +31,23 @@ jobs:
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
-          git checkout -b "DEV_UpdateHealthCheckServers"      
+          git checkout -b "${{ env.BRANCH }}"      
 
       - name: Copy servers.json to gitops
         run: |
           cp health-check-service/dev/servers.json gitops/components/infra/health-check-service/overlays/dev/servers.json
 
-      - name: Commit and push changes
+      - name: Commit and push changes, create PR
         working-directory: gitops/
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git commit -am "[CD] Update Health Check Service Dev servers.json"
           git push --set-upstream origin "DEV_UpdateHealthCheckServers"
-
-  trigger_pr:
-    runs-on: ubuntu-latest
-    needs: dev-move-servers-json
-    uses: isisbusapps/gitops/.github/workflows/create-release-pr.yaml@main
-    with:
-      branchName: DEV_UpdateHealthCheckServers
-      sourceRepo: ${{ github.repository }}
-      actor: ${{ github.actor }}
+          gh workflow run create-release-pr.yaml \
+            --repo "${{ env.GITOPS_REPO }}" \
+            --field branchName="${{ env.BRANCH }}" \
+            --field releaseVersion="${{ inputs.release-version }}" \
+            --field imageName="${{ github.repository_owner }}/${{ inputs.image-name }}" \
+            --field sourceRepo="${{ github.repository }}" \
+            --field actor="${{ github.actor }}"
