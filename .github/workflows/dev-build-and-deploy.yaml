@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - AuthenticateHealthCheck
     paths-ignore:
       - gitops/**
       - README.md
@@ -12,8 +13,40 @@ concurrency:
   group: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'dev-deploy' }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
+  dev-move-servers-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Health Check
+        uses: actions/checkout@v6
+
+      - name: Checkout gitops
+        name: actions/checkout@v6
+        with:
+          repository: isisbusapps/gitops
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: Copy servers.json to gitops
+        run: |
+          cp health-check-service/dev/servers.json gitops/components/infra/health-check-service/overlays/dev/servers.json
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git checkout -b "DEV_UpdateHealthCheckServers"
+          git commit -am "[CD] Update Health Check Service Dev servers.json"
+          git push --set-upstream origin "DEV_UpdateHealthCheckServers"
+
+      - name: Trigger GitOps PR workflow
+        uses: isisbusapps/gitops/.github/workflows/create-release-pr.yaml@main
+        with:
+          branchName: DEV_UpdateHealthCheckServers
+          sourceRepo: ${{ github.repository }}
+          actor: ${{ github.actor }}
+
   dev-build:
     uses: isisbusapps/ci-cd/.github/workflows/dev-build-reusable-workflow.yaml@main
+    needs: dev-move-servers-json
     with:
       image-name: health-check-service
       app-name: Health Check Service
