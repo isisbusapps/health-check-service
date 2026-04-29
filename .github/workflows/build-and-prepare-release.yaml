@@ -1,0 +1,64 @@
+name: Build and Prepare Release
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: 'Release version (e.g., 1.2.3) — no v prefix'
+        required: true
+        type: string
+      isHotfix:
+        description: 'Hotfix release (select the hotfix branch before running)'
+        required: true
+        type: boolean
+concurrency:
+  group: production-release
+  cancel-in-progress: false
+jobs:
+  release:
+    uses: isisbusapps/ci-cd/.github/workflows/build-and-prepare-release-reusable-workflow.yaml@main
+    with:
+      image-name: health-check-service
+      app-name: Health Check Service
+      gitops-patch-path: components/infra/health-check-service/overlays/prod/patch-image.yaml
+      release-version: ${{ inputs.releaseVersion }}
+      is-hotfix: ${{ inputs.isHotfix }}
+    secrets:
+      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}
+
+  release-servers:
+    runs-on: ubuntu-latest
+    needs: release
+    outputs:
+      branch-name: ${{ steps.branch.outputs.name }}
+    steps:
+    - name: Generate branch name
+      id: branch
+      run: |
+        BRANCH_NAME="release/${{ github.repository_owner }}/${{ inputs.image-name }}-${{ inputs.release-version }}"
+        echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+    
+    - name: Checkout Health Check
+      uses: actions/checkout@v6
+      with:
+        path: health-check-service/
+
+    - name: Checkout gitops
+      uses: actions/checkout@v6
+      with:
+        repository: ${{ env.GITOPS_REPO }}
+        token: ${{ secrets.WORKFLOW_TOKEN }}
+        path: gitops/
+
+    - name: Copy servers.json to gitops
+      run: |
+        cp health-check-service/prod/servers.json gitops/components/infra/health-check-service/overlays/prod/servers.json
+
+    - name: Commit and push changes, create PR
+      working-directory: gitops/
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git checkout ${{ needs.update_gitops.outputs.branch-name }}
+        git pull
+        git commit -am "[CD] Update Health Check Service Dev servers.json"
+        git push

@@ -1,0 +1,37 @@
+name: Dev Update servers.json files
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - dev/servers.json
+jobs:
+  dev-move-servers-json:
+    runs-on: ubuntu-latest
+    env:
+      GITOPS_REPO: isisbusapps/gitops
+    steps:
+      - name: Checkout Health Check
+        uses: actions/checkout@v6
+        with:
+          path: health-check-service/
+
+      - name: Checkout gitops
+        uses: actions/checkout@v6
+        with:
+          repository: ${{ env.GITOPS_REPO }}
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          path: gitops/
+
+      - name: Copy servers.json to gitops
+        run: |
+          cp health-check-service/dev/servers.json gitops/components/infra/health-check-service/overlays/dev/servers.json
+
+      - name: Commit and push changes, create PR
+        working-directory: gitops/
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -am "[CD] Update Health Check Service Dev servers.json"
+          git push
