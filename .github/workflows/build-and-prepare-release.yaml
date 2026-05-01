@@ -1,8 +1,5 @@
 name: Build and Prepare Release
 on:
-  push:
-    branches:
-      - AuthenticateHealthCheck
   workflow_dispatch:
     inputs:
       releaseVersion:
@@ -54,7 +51,9 @@ jobs:
         path: gitops/
     
     - name: LS, apparently something does not exist on the runner..
-      run: ls -la
+      run: |
+        ls -la health-check-service/prod
+        ls -la gitops/components/infra/health-check-service/overlays/prod
 
     - name: Copy servers.json to gitops
       run: |
