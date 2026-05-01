@@ -28,6 +28,8 @@ jobs:
   detect-changes-to-servers:
     runs-on: ubuntu-latest
     needs: release
+    output:
+      changes: ${{ steps.changes.outputs.health-check-service }}
     steps:
     - name: Checkout Health Check
       uses: actions/checkout@v6
@@ -43,7 +45,7 @@ jobs:
   release-servers:
     runs-on: ubuntu-latest
     needs: detect-changes-to-servers
-    if: steps.changes.outputs.src == 'true'
+    if: ${{ needs.detect-changes-to-servers.changes == 'true' }} 
     env:
       GITOPS_REPO: isisbusapps/gitops
     outputs:
