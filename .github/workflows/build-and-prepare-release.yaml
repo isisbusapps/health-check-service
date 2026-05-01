@@ -23,11 +23,28 @@ jobs:
       release-version: ${{ inputs.releaseVersion }}
       is-hotfix: ${{ inputs.isHotfix }}
     secrets:
-      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}
+      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}#
+
+  detect-changes-to-servers:
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+    - name: Checkout Health Check
+      uses: actions/checkout@v6
+
+    - name: Check for changes
+      uses: uses: dorny/paths-filter@v4
+      id: changes
+      with:
+        filters: |
+          health-check-service:
+            - 'health-check-service/prod/servers.json'
+
 
   release-servers:
     runs-on: ubuntu-latest
-    needs: release
+    needs: detect-changes-to-servers
+    if: steps.changes.outputs.src == 'true'
     env:
       GITOPS_REPO: isisbusapps/gitops
     outputs:
@@ -51,16 +68,6 @@ jobs:
         repository: ${{ env.GITOPS_REPO }}
         token: ${{ secrets.WORKFLOW_TOKEN }}
         path: gitops/
-    
-    - name: LS, apparently something does not exist on the runner..
-      run: |
-        ls -la gitops
-        ls -la gitops/components
-        ls -la gitops/components/infra
-        ls -la gitops/components/infra/health-check-service
-        ls -la gitops/components/infra/health-check-service/overlays
-        ls -la gitops/components/infra/health-check-service/overlays/prod
-
 
     - name: Copy servers.json to gitops
       run: |
