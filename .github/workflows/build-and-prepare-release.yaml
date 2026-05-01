@@ -2,7 +2,7 @@ name: Build and Prepare Release
 on:
   push:
     branches:
-    - AuthenticateHealthCheck
+      - AuthenticateHealthCheck
   workflow_dispatch:
     inputs:
       releaseVersion:
