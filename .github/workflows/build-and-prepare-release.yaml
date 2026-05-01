@@ -1,5 +1,8 @@
 name: Build and Prepare Release
 on:
+  push:
+    branches:
+    - AuthenticateHealthCheck
   workflow_dispatch:
     inputs:
       releaseVersion:
@@ -40,6 +43,7 @@ jobs:
     - name: Checkout Health Check
       uses: actions/checkout@v6
       with:
+        ref: AuthenticateHealthCheck
         path: health-check-service/
 
     - name: Checkout gitops
@@ -48,6 +52,9 @@ jobs:
         repository: ${{ env.GITOPS_REPO }}
         token: ${{ secrets.WORKFLOW_TOKEN }}
         path: gitops/
+    
+    - name: LS, apparently something does not exist on the runner..
+      run: ls -la
 
     - name: Copy servers.json to gitops
       run: |
