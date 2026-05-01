@@ -28,6 +28,8 @@ jobs:
   release-servers:
     runs-on: ubuntu-latest
     needs: release
+    env:
+      GITOPS_REPO: isisbusapps/gitops
     outputs:
       branch-name: ${{ steps.branch.outputs.name }}
     steps:
