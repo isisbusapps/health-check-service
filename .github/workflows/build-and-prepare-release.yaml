@@ -28,7 +28,7 @@ jobs:
   detect-changes-to-servers:
     runs-on: ubuntu-latest
     needs: release
-    output:
+    outputs:
       changes: ${{ steps.changes.outputs.health-check-service }}
     steps:
     - name: Checkout Health Check
