@@ -52,8 +52,13 @@ jobs:
     
     - name: LS, apparently something does not exist on the runner..
       run: |
-        ls -la health-check-service/prod
+        ls -la gitops
+        ls -la gitops/components
+        ls -la gitops/components/infra
+        ls -la gitops/components/infra/health-check-service
+        ls -la gitops/components/infra/health-check-service/overlays
         ls -la gitops/components/infra/health-check-service/overlays/prod
+
 
     - name: Copy servers.json to gitops
       run: |
