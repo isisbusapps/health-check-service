@@ -48,8 +48,6 @@ jobs:
     if: ${{ needs.detect-changes-to-servers.outputs.changes == 'true' }} 
     env:
       GITOPS_REPO: isisbusapps/gitops
-    outputs:
-      branch-name: ${{ steps.branch.outputs.name }}
     steps:
     - name: Generate branch name
       id: branch
@@ -65,7 +63,7 @@ jobs:
     - name: Checkout gitops
       uses: actions/checkout@v6
       with:
-        ref: ${{ steps.release-servers.outputs.name }}
+        ref: ${{ steps.branch.outputs.name }}
         repository: ${{ env.GITOPS_REPO }}
         token: ${{ secrets.WORKFLOW_TOKEN }}
         path: gitops/
