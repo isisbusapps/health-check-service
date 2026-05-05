@@ -40,7 +40,7 @@ jobs:
       with:
         filters: |
           health-check-service:
-            - 'health-check-service/prod/servers.json'
+            - 'prod/servers.json'
 
   release-servers:
     runs-on: ubuntu-latest
