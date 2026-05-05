@@ -65,7 +65,7 @@ jobs:
     - name: Checkout gitops
       uses: actions/checkout@v6
       with:
-        ref: ${{ needs.update_gitops.outputs.outputs.branch-name }}
+        ref: ${{ steps.release-servers.outputs.name }}
         repository: ${{ env.GITOPS_REPO }}
         token: ${{ secrets.WORKFLOW_TOKEN }}
         path: gitops/
