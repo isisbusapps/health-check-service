@@ -54,7 +54,7 @@ jobs:
     - name: Generate branch name
       id: branch
       run: |
-        BRANCH_NAME="release/${{ github.repository_owner }}/${{ inputs.image-name }}-${{ inputs.releaseVersion }}"
+        BRANCH_NAME="release/${{ github.repository_owner }}/health-check-service-${{ inputs.releaseVersion }}"
         echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
     
     - name: Checkout Health Check
