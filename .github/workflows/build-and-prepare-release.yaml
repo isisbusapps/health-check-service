@@ -78,7 +78,7 @@ jobs:
       run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git checkout ${{ needs.update_gitops.outputs.branch-name }}
+        git checkout ${{ needs.update_gitops.outputs.outputs.branch-name }}
         git pull
         git commit -am "[CD] Update Health Check Service Dev servers.json"
         git push
