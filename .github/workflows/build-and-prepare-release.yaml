@@ -23,7 +23,7 @@ jobs:
       release-version: ${{ inputs.releaseVersion }}
       is-hotfix: ${{ inputs.isHotfix }}
     secrets:
-      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}#
+      workflow-token: ${{ secrets.WORKFLOW_TOKEN }}
 
   detect-changes-to-servers:
     runs-on: ubuntu-latest
@@ -60,7 +60,6 @@ jobs:
     - name: Checkout Health Check
       uses: actions/checkout@v6
       with:
-        ref: AuthenticateHealthCheck
         path: health-check-service/
 
     - name: Checkout gitops
