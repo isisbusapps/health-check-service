@@ -21,13 +21,11 @@
   },
   {
     "name": "message",
-    "defaultUrl": "https://devapi.facilities.rl.ac.uk/messages",
     "externalUrl": "https://devexternal-api.facilities.rl.ac.uk/messages",
     "localUrl": "http://messages-service.apps.svc.cluster.local:30000/q/health"
   },
   {
     "name": "mailchimp-webhooks",
-    "defaultUrl": "https://devapi.facilities.rl.ac.uk/mailchimp/status",
     "externalUrl": "https://devexternal-api.facilities.rl.ac.uk/mailchimp/status",
     "localUrl": "http://mailchimp-webhooks.apps.svc.cluster.local:3000/status"
   },
@@ -43,7 +41,7 @@
   },
   {
     "name": "authenticate-frontend",
-    "defaultUrl": "https://defoffice.facilities.rl.ac.uk/auth",
+    "defaultUrl": "https://devoffice.facilities.rl.ac.uk/auth",
     "externalUrl": "https://devusers.facilities.rl.ac.uk/auth",
     "localUrl": "http://authenticate-frontend.apps.svc.cluster.local:3000/status"
   },
