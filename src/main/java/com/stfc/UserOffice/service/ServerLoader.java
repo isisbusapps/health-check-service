@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 @ApplicationScoped
 public class ServerLoader {
@@ -39,6 +40,11 @@ public class ServerLoader {
             });
         } catch (IOException e) {
             serverLoaderLogger.fatalf("Failed to load servers file at %s: %s", path.toAbsolutePath(), e.getMessage());
+            try {
+                TimeUnit.SECONDS.sleep(30);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
             throw new RuntimeException("Failed to load servers file: " + path.toAbsolutePath(), e);
         }
     }
