@@ -35,16 +35,16 @@ public class ServerLoader {
     void onStart(@Observes StartupEvent ev) {
         Path path = Path.of(serversFilePath);
         serverLoaderLogger.infof("Loading servers from file: %s", path.toAbsolutePath());
+        try {
+            TimeUnit.SECONDS.sleep(30);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
         try (InputStream s = Files.newInputStream(path)) {
             server = objectMapper.readValue(s, new TypeReference<>() {
             });
         } catch (IOException e) {
             serverLoaderLogger.fatalf("Failed to load servers file at %s: %s", path.toAbsolutePath(), e.getMessage());
-            try {
-                TimeUnit.SECONDS.sleep(30);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
             throw new RuntimeException("Failed to load servers file: " + path.toAbsolutePath(), e);
         }
     }
