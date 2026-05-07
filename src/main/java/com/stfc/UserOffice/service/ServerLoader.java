@@ -35,11 +35,6 @@ public class ServerLoader {
     void onStart(@Observes StartupEvent ev) {
         Path path = Path.of(serversFilePath);
         serverLoaderLogger.infof("Loading servers from file: %s", path.toAbsolutePath());
-        try {
-            TimeUnit.MINUTES.sleep(1);
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
         try (InputStream s = Files.newInputStream(path)) {
             server = objectMapper.readValue(s, new TypeReference<>() {
             });

@@ -42,11 +42,6 @@ public class HealthChecker {
 
     @PostConstruct
     void init() {
-        try {
-            TimeUnit.MINUTES.sleep(1);
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
         servers = serverLoader.getServers();
         if (servers == null || servers.isEmpty()) {
             LOGGER.warn("No servers configured for health check");
