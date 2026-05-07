@@ -30,7 +30,8 @@ public class HealthChecker {
     @Inject
     ServerLoader serverLoader;
 
-    private final Map<String, AtomicInteger> gauges = new HashMap<>();
+    private final Map<String, AtomicInteger> defaultGauges = new HashMap<>();
+    private final Map<String, AtomicInteger> externalGauges = new HashMap<>();
     private final Map<String, AtomicInteger> localGauges = new HashMap<>();
     private final Map<String, AtomicInteger> combinedGauges = new HashMap<>();
     private volatile List<Server> servers;
@@ -47,8 +48,18 @@ public class HealthChecker {
         for (Server s : servers) {
             String name = s.name == null ? "unknown" : s.name;
             AtomicInteger defaultGauge = new AtomicInteger(0);
-            gauges.put(name, defaultGauge);
+            defaultGauges.put(name, defaultGauge);
             registry.gauge("service.status.default", Tags.of("service", name.toLowerCase()), defaultGauge, AtomicInteger::get);
+
+            if (s.externalUrl != null && !s.externalUrl.isBlank()) {
+                AtomicInteger externalGauge = new AtomicInteger(0);
+                externalGauges.put(name, externalGauge);
+                registry.gauge("service.status.external", Tags.of("service", name.toLowerCase()), externalGauge, AtomicInteger::get);
+
+                AtomicInteger combinedGauge = new AtomicInteger(0);
+                combinedGauges.put(name, combinedGauge);
+                registry.gauge("service.status.combined", Tags.of("service", name.toLowerCase()), combinedGauge, AtomicInteger::get);
+            }
 
             if (s.localUrl != null && !s.localUrl.isBlank()) {
                 AtomicInteger localGauge = new AtomicInteger(0);
@@ -66,34 +77,53 @@ public class HealthChecker {
     public void check() {
         for (Server s : servers) {
             String name = s.name == null ? "unknown" : s.name;
-            AtomicInteger defaultGauge = gauges.get(name);
-            String defaultUrl = s.url;
-            boolean defaultOk = false;
+            AtomicInteger defaultGauge = defaultGauges.get(name);
+            String defaultUrl = s.defaultUrl;
+            boolean defaultOK = false;
+            boolean externalOK = false;
+            boolean localOK = false;
 
             if (defaultUrl == null || defaultUrl.isBlank()) {
                 defaultGauge.set(0);
                 LOGGER.infof("%s default is DOWN (no URL)", name);
             } else {
-                defaultOk = performCheck(defaultUrl, name + " default");
-                defaultGauge.set(defaultOk ? 1 : 0);
+                defaultOK = performCheck(defaultUrl, name + " default");
+                defaultGauge.set(defaultOK ? 1 : 0);
+            }
+
+            String externalUrl = s.externalUrl;
+            AtomicInteger externalGauge = externalGauges.get(name);
+
+            if (externalGauge != null) { // means localUrl configured during init
+                if (externalUrl == null || externalUrl.isBlank()) {
+                    externalGauge.set(0);
+                    LOGGER.infof("%s local is DOWN (no local URL)", name);
+                } else {
+                    externalOK = performCheck(externalUrl, name + " external");
+                    externalGauge.set(externalOK ? 1 : 0);
+                }
             }
 
             String localUrl = s.localUrl;
             AtomicInteger localGauge = localGauges.get(name);
-            AtomicInteger combinedGauge = combinedGauges.get(name);
 
             if (localGauge != null) { // means localUrl configured during init
-                boolean localOk = false;
                 if (localUrl == null || localUrl.isBlank()) {
                     localGauge.set(0);
                     LOGGER.infof("%s local is DOWN (no local URL)", name);
                 } else {
-                    localOk = performCheck(localUrl, name + " local");
-                    localGauge.set(localOk ? 1 : 0);
+                    localOK = performCheck(localUrl, name + " local");
+                    localGauge.set(localOK ? 1 : 0);
                 }
-                if (combinedGauge != null) {
-                    combinedGauge.set((defaultOk && localOk) ? 1 : 0);
-                }
+            }
+
+            AtomicInteger combinedGauge = combinedGauges.get(name);
+            if (combinedGauge != null && externalGauge != null && localGauge != null) {
+                combinedGauge.set((defaultOK && externalOK && localOK) ? 1 : 0);
+            } else if (combinedGauge != null && externalGauge != null && localGauge == null) {
+                combinedGauge.set((defaultOK && externalOK) ? 1 : 0);
+            } else if (combinedGauge != null && externalGauge == null && localGauge != null) {
+                combinedGauge.set((defaultOK && localOK) ? 1 : 0);
             }
         }
     }
