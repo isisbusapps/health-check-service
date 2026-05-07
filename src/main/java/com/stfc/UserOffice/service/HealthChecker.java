@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @ApplicationScoped
@@ -41,6 +42,11 @@ public class HealthChecker {
 
     @PostConstruct
     void init() {
+        try {
+            TimeUnit.MINUTES.sleep(1);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
+        }
         servers = serverLoader.getServers();
         if (servers == null || servers.isEmpty()) {
             LOGGER.warn("No servers configured for health check");

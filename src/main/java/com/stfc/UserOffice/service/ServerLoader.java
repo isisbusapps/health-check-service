@@ -36,7 +36,7 @@ public class ServerLoader {
         Path path = Path.of(serversFilePath);
         serverLoaderLogger.infof("Loading servers from file: %s", path.toAbsolutePath());
         try {
-            TimeUnit.SECONDS.sleep(30);
+            TimeUnit.MINUTES.sleep(1);
         } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         }
