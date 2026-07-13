@@ -115,7 +115,7 @@
     "defaultUrl": "http://user-exchange-client-prop-clf-all-service.apps.svc.cluster.local:8080/q/health"
   },
   {
-    "name": "user-exchange-client-iops",
+    "name": "user-exchange-client-iops-v4",
     "defaultUrl": "http://user-exchange-client-iops-v4-service.apps.svc.cluster.local:8080/q/health"
   },
   {
