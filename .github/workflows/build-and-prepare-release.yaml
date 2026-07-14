@@ -10,9 +10,16 @@ on:
         description: 'Hotfix release (select the hotfix branch before running)'
         required: true
         type: boolean
+
 concurrency:
   group: production-release
   cancel-in-progress: false
+
+permissions:
+  packages: read
+  contents: read
+  pull-requests: read
+
 jobs:
   release:
     uses: isisbusapps/ci-cd/.github/workflows/build-and-prepare-release-reusable-workflow.yaml@main
@@ -43,7 +50,8 @@ jobs:
             - 'prod/servers.json'
 
   release-servers:
-    runs-on: ubuntu-latest
+    runs-on: fase-self-hosted
+    container: ghcr.io/isisbusapps/fase-gh-runner-container:latest
     needs: detect-changes-to-servers
     if: ${{ needs.detect-changes-to-servers.outputs.changes == 'true' }} 
     env:
