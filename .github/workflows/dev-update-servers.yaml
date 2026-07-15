@@ -6,9 +6,16 @@ on:
       - main
     paths:
       - dev/servers.json
+
+permissions:
+  packages: read
+  contents: read
+  pull-requests: read
+
 jobs:
   dev-move-servers-json:
-    runs-on: ubuntu-latest
+    runs-on: fase-self-hosted
+    container: ghcr.io/isisbusapps/fase-gh-runner-container:latest
     env:
       GITOPS_REPO: isisbusapps/gitops
     steps:
