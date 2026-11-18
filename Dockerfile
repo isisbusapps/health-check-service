@@ -30,4 +30,4 @@ COPY --chown=appUser --from=build /build/target/quarkus-app/quarkus/ /deployment
 
 WORKDIR /deployments
 
-CMD ["java", "-jar", "quarkus-run.jar"]
+CMD ["java", "-XX:-UseBASE64Intrinsics", "-jar", "quarkus-run.jar"]
